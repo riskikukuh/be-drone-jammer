@@ -13,6 +13,19 @@ const routes = (handler) => [
       },
     },
   }, {
+    method: 'PUT',
+    path: `/jammers/{jammerId}`,
+    handler: handler.editJammerHandler,
+    options: {
+      payload: {
+        multipart: true,
+      },
+    },
+  }, {
+    method: 'DELETE',
+    path: `/jammers/{jammerId}`,
+    handler: handler.deleteJammerHandler,
+  }, {
     method: 'GET',
     path: `/jammers/switch/{jammerId}/{isOn}`,
     handler: handler.toggleJammerHandler,

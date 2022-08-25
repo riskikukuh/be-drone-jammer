@@ -8,6 +8,8 @@ class JammersHandler {
         this.getJammersHandler = this.getJammersHandler.bind(this);
         this.addJammerHandler = this.addJammerHandler.bind(this);
         this.toggleJammerHandler = this.toggleJammerHandler.bind(this);
+        this.editJammerHandler = this.editJammerHandler.bind(this);
+        this.deleteJammerHandler = this.deleteJammerHandler.bind(this);
     }
 
     async getJammersHandler(request, h) {
@@ -19,6 +21,8 @@ class JammersHandler {
     }
 
     async addJammerHandler(request, h) {
+        await this._jammersService.verifyAliasName(alias);
+        await this._jammersService.verifyIpPort(ip, port);
         const jammer = await this._jammersService.addJammer(request.payload);
 
         return h.response({
@@ -32,6 +36,7 @@ class JammersHandler {
     async toggleJammerHandler(request, h) {
         const defaultStatus = ["on", "off"];
         const { jammerId, isOn } = request.params;
+        await this.verifyAnyJammer(jammerId); 
         const castedIsOn = isOn.toLowerCase();
         if (!defaultStatus.includes(castedIsOn)) {
             throw new InvariantError('Status tidak diketahui');
@@ -85,6 +90,38 @@ class JammersHandler {
                 .catch(function (error) {
                     reject(error);
                 });
+        });
+    }
+
+    // TODO: Reset Jammer
+    async resetJammerHandler(request, h) {
+        const statuses = ["MATI", "HIDUP", "ERROR"];
+        const { status } = request.payload;
+        if (!statuses.includes(status)) {
+            status = "MATI";
+        }
+    }
+
+    async editJammerHandler(request, h) {
+        const { jammerId } = request.params;
+        await this._jammersService.verifyAnyJammer(jammerId);
+        const { alias, ip, port, lat, long, location } = request.payload;
+        await this._jammersService.verifyAliasName(alias, jammerId);
+        await this._jammersService.verifyIpPort(ip, port, jammerId);
+        await this._jammersService.updateJammer(jammerId, { alias, ip, port, lat, long, location});
+        return h.response({
+            status: 200,
+            message: "Berhasil mengubah Jammer"
+        });
+    }
+
+    async deleteJammerHandler(request, h) {
+        const { jammerId } = request.params;
+        await this._jammersService.verifyAnyJammer(jammerId);
+        await this._jammersService.deleteJammer(jammerId);
+        return h.response({
+            status: 200,
+            message: "Berhasil menghapus Jammer",
         });
     }
 }

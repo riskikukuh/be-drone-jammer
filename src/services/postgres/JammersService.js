@@ -1,9 +1,7 @@
 const {
   Pool,
 } = require('pg');
-// import { nanoid } from 'nanoid';
 const { nanoid } = require('nanoid');
-// import { nanoid } from 'nanoid'
 const NotFoundError = require('../../api/exceptions/NotFoundError');
 const InvariantError = require('../../api/exceptions/InvariantError');
 
@@ -53,9 +51,6 @@ class JammersService {
     const lastOn = null;
     const status = "MATI";
 
-    await this.verifyAliasName(alias);
-    await this.verifyIpPort(ip, port);
-
     const query = {
       text: 'INSERT INTO jammers VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9 ) RETURNING id',
       values: [id, alias, ip, port, geolocation, location, lastOn, status, +new Date()],
@@ -70,27 +65,25 @@ class JammersService {
     return resultInsert.rows[0];
   }
 
-  async updateJammer({ alias, ip, port, lat, long, location, status }) {
-    await this.verifyAnyJammer(id);    
-    await this.verifyAliasName(alias, id);
+  async updateJammer(jammerId, { alias, ip, port, lat, long, location }) {
     const geolocation = `(${lat},${long})`;
-    const statuses = ["MATI", "HIDUP", "ERROR"];
-    
-    if (!statuses.includes(status)) {
-      status = "MATI";
-    }
-
     const query = {
-      text: 'UPDATE jammers SET alias_name = $1, ip = $2, port = $3, geolocation = $4, location = $5, status = $6 WHERE id = $7',
-      values: [alias, ip, port, geolocation, location, status, id],
+      text: 'UPDATE jammers SET alias_name = $1, ip = $2, port = $3, geolocation = $4, location = $5 WHERE id = $6',
+      values: [alias, ip, port, geolocation, location, jammerId],
     };
 
     await this._pool.query(query);
   }
 
-  async switchJammerById(jammerId, isOn) {
-    await this.verifyAnyJammer(jammerId);    
+  async deleteJammer(jammerId) {
+    const query = {
+      text: 'DELETE FROM jammers WHERE id = $1',
+      values: [jammerId],
+    };
+    await this._pool.query(query);
+  }
 
+  async switchJammerById(jammerId, isOn) {   
     let status = "MATI"
     let query;
     if (isOn) {
@@ -139,11 +132,19 @@ class JammersService {
     }
   }
 
-  async verifyIpPort(ip, port) {
-    const query = {
-      text: 'SELECT ip, port FROM jammers WHERE ip = $1 AND port = $2',
-      values: [ip, port],
-    };
+  async verifyIpPort(ip, port, jammerId = null) {
+    let query;
+    if (jammerId) {
+      query = {
+        text: 'SELECT ip, port FROM jammers WHERE ip = $1 AND port = $2 AND id != $3',
+        values: [ip, port, jammerId],
+      };
+    } else {
+      query = {
+        text: 'SELECT ip, port FROM jammers WHERE ip = $1 AND port = $2',
+        values: [ip, port],
+      };
+    }
     const result = await this._pool.query(query);
     if (result.rowCount > 0) {
       throw new InvariantError('IP dan PORT telah digunakan');
