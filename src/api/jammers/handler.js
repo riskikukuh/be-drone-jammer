@@ -21,9 +21,10 @@ class JammersHandler {
     }
 
     async addJammerHandler(request, h) {
+        const { alias, ip, port, lat, long, location } = request.payload;
         await this._jammersService.verifyAliasName(alias);
         await this._jammersService.verifyIpPort(ip, port);
-        const jammer = await this._jammersService.addJammer(request.payload);
+        const jammer = await this._jammersService.addJammer({ alias, ip, port, lat, long, location });
 
         return h.response({
             status: 'success',
@@ -36,7 +37,7 @@ class JammersHandler {
     async toggleJammerHandler(request, h) {
         const defaultStatus = ["on", "off"];
         const { jammerId, isOn } = request.params;
-        await this.verifyAnyJammer(jammerId); 
+        await this._jammersService.verifyAnyJammer(jammerId);
         const castedIsOn = isOn.toLowerCase();
         if (!defaultStatus.includes(castedIsOn)) {
             throw new InvariantError('Status tidak diketahui');
@@ -64,7 +65,7 @@ class JammersHandler {
             data: {
                 jammerStatus: resultSwitch,
             },
-        });
+        }).code(504);
     }
 
     async switchJammerLan(ip, port, isOn) {

@@ -11,7 +11,7 @@ class JammersService {
   }
 
   async getJammers() {
-    const { rows } = await this._pool.query('SELECT id, alias_name, ip, port, geolocation, location, last_on, status, created_at, updated_at FROM jammers');
+    const { rows } = await this._pool.query('SELECT id, alias_name, ip, port, geolocation, location, last_on, status, created_at, updated_at FROM jammers ORDER BY created_at');
     return rows;
   }
 
