@@ -6,6 +6,7 @@ const Hapi = require('@hapi/hapi');
 // Jammers
 const jammers = require('./api/jammers');
 const JammersService = require('./services/postgres/JammersService');
+const jammersValidator = require('./validator/jammers');
 
 // Exceptions
 const ClientError = require('./api/exceptions/ClientError');
@@ -31,6 +32,7 @@ const init = async () => {
             },
             options: {
                 jammersService,
+                jammersValidator,
             }
         }
     ]);

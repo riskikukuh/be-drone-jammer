@@ -2,8 +2,9 @@ const InvariantError = require("../exceptions/InvariantError");
 const axios = require('axios').default;
 
 class JammersHandler {
-    constructor(service) {
+    constructor(service, jammersValidator) {
         this._jammersService = service;
+        this._jammersValidator = jammersValidator;
 
         this.getJammersHandler = this.getJammersHandler.bind(this);
         this.addJammerHandler = this.addJammerHandler.bind(this);
@@ -21,6 +22,7 @@ class JammersHandler {
     }
 
     async addJammerHandler(request, h) {
+        await this._jammersValidator.validateJammersPayload(request.payload);
         const { alias, ip, port, lat, long, location } = request.payload;
         await this._jammersService.verifyAliasName(alias);
         await this._jammersService.verifyIpPort(ip, port);
@@ -58,6 +60,11 @@ class JammersHandler {
                     jammerStatus: resultSwitch,
                 },
             });
+        } else if (!resultSwitch) {
+            return h.response({
+                status: 'error',
+                message: 'Gagal menghidupkan jammer, silahkan coba kembali nanti',
+            }).code(200);
         }
         return h.response({
             status: 'error',

@@ -4,8 +4,8 @@ const JammersHandler = require('./handler');
 module.exports = {
   name: 'jammers',
   version: '0.0.1',
-  register: async (server, { jammersService }) => {
-    const jammersHandler = new JammersHandler(jammersService);
+  register: async (server, { jammersService, jammersValidator }) => {
+    const jammersHandler = new JammersHandler(jammersService, jammersValidator);
     server.route(routes(jammersHandler));
   },
 };

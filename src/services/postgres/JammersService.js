@@ -11,13 +11,13 @@ class JammersService {
   }
 
   async getJammers() {
-    const { rows } = await this._pool.query('SELECT id, alias_name, ip, port, geolocation, location, last_on, status, created_at, updated_at FROM jammers ORDER BY created_at');
+    const { rows } = await this._pool.query('SELECT id, alias_name, ip, port, geolocation, location, last_on, temperature, status, created_at, updated_at FROM jammers ORDER BY created_at');
     return rows;
   }
 
   async getJammerById(jammerId) {
     const query = {
-      text: 'SELECT id, alias_name, ip, port, geolocation, location, last_on, status, created_at, updated_at FROM jammers WHERE id = $1',
+      text: 'SELECT id, alias_name, ip, port, geolocation, location, last_on, temperature, status, created_at, updated_at FROM jammers WHERE id = $1',
       values: [jammerId],
     };
 
@@ -32,7 +32,7 @@ class JammersService {
 
   async getJammerByAliasName(aliasName) {
     const query = {
-      text: 'SELECT id, alias_name, ip, port, geolocation, location, last_on, status, created_at, updated_at FROM jammers WHERE alias_name = $1',
+      text: 'SELECT id, alias_name, ip, port, geolocation, location, last_on, temperature, status, created_at, updated_at FROM jammers WHERE alias_name = $1',
       values: [aliasName],
     };
 
