@@ -5,6 +5,9 @@ class JammersHandler {
     constructor(service, jammersValidator) {
         this._jammersService = service;
         this._jammersValidator = jammersValidator;
+        this._axios = axios.create({
+            timeout: 1000, // 30s for timeout
+        });
 
         this.getJammersHandler = this.getJammersHandler.bind(this);
         this.addJammerHandler = this.addJammerHandler.bind(this);
@@ -60,18 +63,15 @@ class JammersHandler {
                     jammerStatus: resultSwitch,
                 },
             });
-        } else if (!resultSwitch) {
+        } else if (resultSwitch) {
             return h.response({
                 status: 'error',
                 message: 'Gagal menghidupkan jammer, silahkan coba kembali nanti',
-            }).code(200);
+            }).code(500);
         }
         return h.response({
             status: 'error',
             message: errorMessage.message,
-            data: {
-                jammerStatus: resultSwitch,
-            },
         }).code(504);
     }
 
@@ -82,22 +82,26 @@ class JammersHandler {
         const encryptedCredentials = Buffer.from(`${username}:${password}`).toString('base64');
         const authHeader = `Basic ${encryptedCredentials}`;
         return new Promise(async (resolve, reject) => {
-            await axios.get(`http://${ip}:${port}/api/${isOn}`, {
-                headers: {
-                    'authorization': authHeader,
-                }
-            })
-                .then(function (response) {
-                    const json = response.data;
-                    if (json.status == expectResult) {
-                        resolve(json.status);
-                    } else {
-                        reject("Jammer gagal menyala");
+            try {
+                await this._axios.get(`http://${ip}:${port}/api/${isOn}`, {
+                    headers: {
+                        'authorization': authHeader,
                     }
                 })
-                .catch(function (error) {
-                    reject(error);
-                });
+                    .then(function (response) {
+                        const json = response.data;
+                        if (json.status == expectResult) {
+                            resolve(json.status);
+                        } else {
+                            reject("Jammer gagal menyala");
+                        }
+                    })
+                    .catch(function (error) {
+                        reject(error);
+                    });
+            } catch(error) {
+                reject(error);
+            }
         });
     }
 
