@@ -10,9 +10,12 @@ const jammersValidator = require('./validator/jammers');
 
 // Exceptions
 const ClientError = require('./api/exceptions/ClientError');
+const LogService = require('./services/postgres/LogService');
+const { Util } = require('./utils/util');
 
 const init = async () => {
     const jammersService = new JammersService();
+    const logService = new LogService();
 
     const server = Hapi.server({
         port: process.env.PORT,
@@ -33,14 +36,18 @@ const init = async () => {
             options: {
                 jammersService,
                 jammersValidator,
+                logService,
             }
-        }
+        }, 
     ]);
 
-    server.ext('onPreResponse', (request, h) => {
+    server.ext('onPreResponse',  async (request, h) => {
         const { response } = request;
         if (response.isBoom) {
             if (response instanceof ClientError) {
+                if (response.type == 'Jammer') {
+                    await logService.addJammerLog(request.payload, { action: response.action, actionStatus: Util.ACTION_STATUS.ERROR, errorMessage: JSON.stringify({ status: response.statusCode, error: response.error ,message: response.message,}) });
+                }
                 const newResponse = h.response({
                     status: 'error',
                     message: response.message,
@@ -60,6 +67,8 @@ const init = async () => {
             }
             console.error(response);
             return response.continue || response;
+        } else {
+
         }
         return response.continue || response;
     });

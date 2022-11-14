@@ -3,22 +3,27 @@
 exports.shorthands = undefined;
 
 exports.up = pgm => {
-    pgm.createTable('jammers', {
+    pgm.createTable('jammer_logs', {
         id: {
-            type: 'VARCHAR(50)',
+            type: 'id',
+            notNull: true,
             primaryKey: true,
+        },
+        jammer_id: {
+            type: 'VARCHAR(50)',
+            notNull: false,
         },
         name: {
             type: 'VARCHAR(200)',
-            notNull: true,
+            notNull: false,
         },
         ip: {
             type: 'TEXT',
-            notNull: true,
+            notNull: false,
         },
         port: {
             type: 'TEXT',
-            notNull: true,
+            notNull: false,
         },
         geolocation: {
             type: 'point',
@@ -34,19 +39,27 @@ exports.up = pgm => {
         },
         status: {
             type: 'VARCHAR(10)',
-            notNull: true,
+            notNull: false,
+        },
+        action: {
+            type: 'TEXT',
+            notNull: false,
+        },
+        action_status: {
+            type: 'VARCHAR(10)',
+            notNull: false,
+        },
+        error_message: {
+            type: 'TEXT',
+            notNull: false,
         },
         created_at: {
             type: 'BIGINT',
             notNull: true,
-            default: pgm.func('extract(epoch FROM now()) * 1000'),
-        },
-        updated_at: {
-            type: 'BIGINT',
         },
     });
 };
 
 exports.down = pgm => {
-    pgm.dropTable('jammers');
+    pgm.dropTable('jammer_logs');
 };

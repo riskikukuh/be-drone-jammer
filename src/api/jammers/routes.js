@@ -14,6 +14,15 @@ const routes = (handler) => [
     },
   }, {
     method: 'PUT',
+    path: `/jammers/freq/{jammerId}`,
+    handler: handler.editFreqJammerHandler,
+    options: {
+      payload: {
+        multipart: true,
+      },
+    },
+  }, {
+    method: 'PUT',
     path: `/jammers/{jammerId}`,
     handler: handler.editJammerHandler,
     options: {
