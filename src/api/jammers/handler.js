@@ -12,6 +12,7 @@ class JammersHandler {
         });
 
         this.getJammersHandler = this.getJammersHandler.bind(this);
+        this.getJammerByIdHandler = this.getJammerByIdHandler.bind(this);
         this.addJammerHandler = this.addJammerHandler.bind(this);
         this.editFreqJammerHandler = this.editFreqJammerHandler.bind(this);
         this.toggleJammerHandler = this.toggleJammerHandler.bind(this);
@@ -27,7 +28,9 @@ class JammersHandler {
         
         const jammers = (await this._jammersService.getJammers(freqs)).map((jammer) => {
             const config = {
-                activated: jammer.activated_freq.split(','),
+                activated: jammer.activated_freq.split(',').map((f) => { 
+                    return parseFloat(f); 
+                }),
                 f900: jammer.f900,
                 f1200: jammer.f1200,
                 f1500: jammer.f1500,
@@ -48,6 +51,39 @@ class JammersHandler {
         return h.response({
             status: 'success',
             data: jammers,
+        });
+    }
+
+    async getJammerByIdHandler(request, h) {
+        return await handleError( async () => {
+            const { jammerId } = request.params;
+            await this._jammersService.verifyAnyJammer(jammerId);
+            const jammer = await this._jammersService.getJammerById(jammerId);
+
+            const config = {
+                activated: jammer.activated_freq.split(',').map((f) => { 
+                    return parseFloat(f); 
+                }),
+                f900: jammer.f900,
+                f1200: jammer.f1200,
+                f1500: jammer.f1500,
+                f2400: jammer.f2400,
+                f5800: jammer.f5800,
+            };
+            
+            delete jammer['activated_freq'];
+            delete jammer['f900'];
+            delete jammer['f1200'];
+            delete jammer['f1500'];
+            delete jammer['f2400'];
+            delete jammer['f5800'];
+
+            jammer['config'] = config;
+
+            return h.response({
+                status: 'success',
+                data: jammer,
+            });
         });
     }
 

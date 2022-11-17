@@ -4,6 +4,10 @@ const routes = (handler) => [
     path: `/jammers`,
     handler: handler.getJammersHandler,
   }, {
+    method: 'GET',
+    path: `/jammers/{jammerId}`,
+    handler: handler.getJammerByIdHandler,
+  }, {
     method: 'POST',
     path: `/jammers`,
     handler: handler.addJammerHandler,

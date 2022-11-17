@@ -7,7 +7,7 @@ const JammerFullPayloadSchema = Joi.object({
     lat: Joi.number().required(),
     long: Joi.number().required(),
     location: Joi.string().required(),
-    active_freq: Joi.array().items(Joi.number().valid(900, 1200, 1500, 2400, 5800).required()),
+    active_freq: Joi.array().items(Joi.number().valid(900, 1200, 1500, 2400, 5800)),
 });
 
 const JammerPayloadSchema = Joi.object({
