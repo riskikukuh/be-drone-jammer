@@ -46,7 +46,7 @@ const init = async () => {
         if (response.isBoom) {
             if (response instanceof ClientError) {
                 if (response.type == 'Jammer') {
-                    await logService.addJammerLog(request.payload, { action: response.action, actionStatus: Util.ACTION_STATUS.ERROR, errorMessage: JSON.stringify({ status: response.statusCode, error: response.error ,message: response.message,}) });
+                    await logService.addJammerLog({raw_payload: request.payload}, { action: response.action, actionStatus: Util.ACTION_STATUS.ERROR, errorMessage: JSON.stringify({ status: response.statusCode, error: response.error ,message: response.message,}) });
                 }
                 const newResponse = h.response({
                     status: 'error',
