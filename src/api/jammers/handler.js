@@ -24,13 +24,13 @@ class JammersHandler {
     async getJammersHandler(request, h) {
         let { freqs } = request.query;
         freqs = freqs?.split(',');
-        
-        await this._jammersValidator.validateJammerFrequenciesParams({freqs});
-        
+
+        await this._jammersValidator.validateJammerFrequenciesParams({ freqs });
+
         const jammers = (await this._jammersService.getJammers(freqs)).map((jammer) => {
             const config = {
-                activated: jammer.activated_freq.split(',').map((f) => { 
-                    return parseFloat(f); 
+                activated: jammer.activated_freq.split(',').map((f) => {
+                    return parseFloat(f);
                 }),
                 f900: jammer.f900,
                 f1200: jammer.f1200,
@@ -38,7 +38,7 @@ class JammersHandler {
                 f2400: jammer.f2400,
                 f5800: jammer.f5800,
             };
-            
+
             delete jammer['activated_freq'];
             delete jammer['f900'];
             delete jammer['f1200'];
@@ -48,7 +48,7 @@ class JammersHandler {
 
             return { ...jammer, config };
         });
-        
+
         return h.response({
             status: 'success',
             data: jammers,
@@ -56,15 +56,15 @@ class JammersHandler {
     }
 
     async getJammerByIdHandler(request, h) {
-        return await handleError( async () => {
+        return await handleError(async () => {
             const { jammerId } = request.params;
-            
+
             await this._jammersService.verifyAnyJammer(jammerId);
-            
+
             const jammer = await this._jammersService.getJammerById(jammerId);
             const config = {
-                activated: jammer.activated_freq.split(',').map((f) => { 
-                    return parseFloat(f); 
+                activated: jammer.activated_freq.split(',').map((f) => {
+                    return parseFloat(f);
                 }),
                 f900: jammer.f900,
                 f1200: jammer.f1200,
@@ -72,7 +72,7 @@ class JammersHandler {
                 f2400: jammer.f2400,
                 f5800: jammer.f5800,
             };
-            
+
             delete jammer['activated_freq'];
             delete jammer['f900'];
             delete jammer['f1200'];
@@ -90,15 +90,15 @@ class JammersHandler {
     }
 
     async addJammerHandler(request, h) {
-        return await handleError(async () =>{
+        return await handleError(async () => {
             await this._jammersValidator.validateFullJammerPayload(request.payload);
             const { name, ip, port } = request.payload;
             await this._jammersService.verifyName(name);
             await this._jammersService.verifyIpPort(ip, port);
 
             const jammer = await this._jammersService.addJammer(request.payload);
-            
-            await this._logService.addJammerLog({raw_payload: request.payload, id: jammer.id}, { action: Util.ACTION.ADD_JAMMER, actionStatus: Util.ACTION_STATUS.SUCCESS, errorMessage: '' });
+
+            await this._logService.addJammerLog({ raw_payload: request.payload, id: jammer.id }, { action: Util.ACTION.ADD_JAMMER, actionStatus: Util.ACTION_STATUS.SUCCESS, errorMessage: '' });
 
             return h.response({
                 status: 'success',
@@ -110,7 +110,7 @@ class JammersHandler {
     }
 
     async editJammerHandler(request, h) {
-        return await handleError( async () => {
+        return await handleError(async () => {
             const { jammerId } = request.params;
             await this._jammersService.verifyAnyJammer(jammerId);
             await this._jammersValidator.validateFullJammerPayload(request.payload);
@@ -120,7 +120,7 @@ class JammersHandler {
             await this._jammersService.verifyIpPort(ip, port, jammerId);
             await this._jammersService.updateJammer(jammerId, request.payload);
 
-            await this._logService.addJammerLog({ ...jammer, raw_payload: request.payload}, { action: Util.ACTION.EDIT_JAMMER, actionStatus: Util.ACTION_STATUS.SUCCESS, errorMessage: '' });
+            await this._logService.addJammerLog({ ...jammer, raw_payload: request.payload }, { action: Util.ACTION.EDIT_JAMMER, actionStatus: Util.ACTION_STATUS.SUCCESS, errorMessage: '' });
 
             return h.response({
                 status: 'success',
@@ -137,21 +137,21 @@ class JammersHandler {
             const jammerFreq = await this._jammersService.verifyActivatedFreq(jammerId, request.payload);
             await this._jammersService.updateFreq(jammerId, jammerFreq);
 
-            await this._logService.addJammerLog({ ...request.payoad, raw_payload: request.payload}, { action: Util.ACTION.EDIT_FREQ_JAMMER, actionStatus: Util.ACTION_STATUS.SUCCESS, errorMessage: '' });
-            
+            await this._logService.addJammerLog({ ...request.payoad, raw_payload: request.payload }, { action: Util.ACTION.EDIT_FREQ_JAMMER, actionStatus: Util.ACTION_STATUS.SUCCESS, errorMessage: '' });
+
             return h.response({
                 status: 'success',
             });
 
         }, Util.ACTION.EDIT_FREQ_JAMMER, 'Jammer');
-    }    
+    }
 
     async deleteJammerHandler(request, h) {
         return await handleError(async () => {
             const { jammerId } = request.params;
             const jammer = await this._jammersService.getJammerById(jammerId);
             await this._jammersService.deleteJammer(jammerId);
-            
+
             await this._logService.addJammerLog({ ...jammer, raw_payload: request.params }, { action: Util.ACTION.DELETE_JAMMER, actionStatus: Util.ACTION_STATUS.SUCCESS, errorMessage: '' });
 
             return h.response({
@@ -159,6 +159,16 @@ class JammersHandler {
                 message: "Berhasil menghapus Jammer",
             });
         }, Util.ACTION.DELETE_JAMMER, 'Jammer');
+    }
+
+    async addTemperature(request, h) {
+        return await handleError(async () => {
+            const { jammerId } = request.params;
+            const jammer = await this._jammersService.getJammerById(jammerId);
+
+
+
+        }, Util.ACTION.ADD_TEMPERATURE_JAMMER, 'Jammer');
     }
 
     // TODO: Reset Jammer
@@ -188,8 +198,8 @@ class JammersHandler {
                 action = Util.ACTION.SWITCH_JAMMER_OFF;
             }
         }, Util.ACTION.SWITCH_JAMMER, 'Jammer');
-        
-        return await handleError( async () => {
+
+        return await handleError(async () => {
             const jammer = await this._jammersService.getJammerById(jammerIdFinalized);
             const { ip, port } = jammer;
             let errorMessage;
@@ -198,24 +208,24 @@ class JammersHandler {
                 console.error(err);
                 errorMessage = err;
             });
-            
+
             /* 
                 When result switch jammer same with request status
             */
             if (resultSwitch == castedIsOn) {
                 await this._jammersService.switchJammerById(jammerIdFinalized, resultSwitch == "on");
                 await this._logService.addJammerLog({ ...jammer, raw_payload: request.params }, { action, actionStatus: Util.ACTION_STATUS.SUCCESS, errorMessage: resultSwitch });
-                
+
                 return h.response({
                     status: 'success',
                     data: {
                         jammerStatus: resultSwitch,
                     },
                 });
-            /* 
-                When result switch jammer not same but result switch have data
-                It means, jammer fail to turn on
-            */
+                /* 
+                    When result switch jammer not same but result switch have data
+                    It means, jammer fail to turn on
+                */
             } else if (resultSwitch) {
                 await this._logService.addJammerLog({ ...jammer, raw_payload: request.params }, { action, actionStatus: Util.ACTION_STATUS.ERROR, errorMessage: 'Gagal menghidupkan jammer, silahkan coba kembali nanti' });
                 return h.response({
@@ -231,7 +241,7 @@ class JammersHandler {
                 status: 'error',
                 message: errorMessage.message,
             };
-            await this._logService.addJammerLog({...jammer, raw_payload: request.params}, { action, actionStatus: Util.ACTION_STATUS.ERROR, errorMessage: errorResponse });
+            await this._logService.addJammerLog({ ...jammer, raw_payload: request.params }, { action, actionStatus: Util.ACTION_STATUS.ERROR, errorMessage: errorResponse });
 
             return h.response(errorResponse).code(504);
         }, action, 'Jammer');
@@ -262,7 +272,7 @@ class JammersHandler {
                     .catch(function (error) {
                         reject(error);
                     });
-            } catch(error) {
+            } catch (error) {
                 reject(error);
             }
         });

@@ -13,6 +13,9 @@ const Util = {
         return `${year}${month}${day}${hours}${minutes}${seconds}`;
     },
     ACTION: {
+        /*
+            Action Jammer CRUD
+        */
         ADD_JAMMER: "ADD JAMMER",
         GET_JAMMER_BY_ID: "GET JAMMER BY ID",
         EDIT_JAMMER: "EDIT JAMMER",
@@ -21,6 +24,11 @@ const Util = {
         SWITCH_JAMMER: "SWITCH JAMMER",
         SWITCH_JAMMER_ON: "SWITCH JAMMER ON",
         SWITCH_JAMMER_OFF: "SWITCH JAMMER OFF",
+
+        /*
+            Action Temperatures Jammers
+        */
+       ADD_TEMPERATURE_JAMMER: "ADD TEMPERATURE JAMMER",
     },
     ACTION_STATUS: {
         SUCCESS: "SUCCESS",

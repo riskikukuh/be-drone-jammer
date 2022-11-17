@@ -38,20 +38,30 @@ const init = async () => {
                 jammersValidator,
                 logService,
             }
-        }, 
+        },
     ]);
 
-    server.ext('onPreResponse',  async (request, h) => {
+    server.ext('onPreResponse', async (request, h) => {
         const { response } = request;
         if (response.isBoom) {
             if (response instanceof ClientError) {
-                if (response.type == 'Jammer') {
-                    await logService.addJammerLog({raw_payload: request.payload}, { action: response.action, actionStatus: Util.ACTION_STATUS.ERROR, errorMessage: JSON.stringify({ status: response.statusCode, error: response.error ,message: response.message,}) });
-                }
-                const newResponse = h.response({
+                const errorResponse = {
                     status: 'error',
                     message: response.message,
-                });
+                };
+                if (response.type == 'Jammer') {
+                    await logService.addJammerLog({ 
+                        raw_payload: JSON.stringify(request.payload || request.params || {}) 
+                    }, {
+                        action: response.action, 
+                        actionStatus: Util.ACTION_STATUS.ERROR, 
+                        errorMessage: JSON.stringify({ 
+                            status: response.statusCode, 
+                            ...errorResponse
+                        }),
+                    });
+                }
+                const newResponse = h.response(errorResponse);
                 newResponse.code(response.statusCode);
                 return newResponse;
             }
@@ -68,7 +78,6 @@ const init = async () => {
             console.error(response);
             return response.continue || response;
         } else {
-
         }
         return response.continue || response;
     });

@@ -56,6 +56,7 @@ exports.up = pgm => {
         created_at: {
             type: 'BIGINT',
             notNull: true,
+            default: pgm.func('extract(epoch FROM now()) * 1000'),
         },
     });
 };

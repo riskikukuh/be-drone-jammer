@@ -36,8 +36,8 @@ class LogService {
         } 
         
         const query = {
-            text: 'INSERT INTO jammer_logs (jammer_id, name, ip, port, geolocation, location, last_on, status, f900, f1200, f1500, f2400, f5800, activated_freq, action, action_status, error_message, raw_payload, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19 ) RETURNING id',
-            values: [id, name, ip, port, geolocationFinalize, location, last_on, status, f900, f1200, f1500, f2400, f5800, resultActivatedFreq, action, actionStatus, errorMessage, resultRawPayload, +new Date()],
+            text: 'INSERT INTO jammer_logs (jammer_id, name, ip, port, geolocation, location, last_on, status, f900, f1200, f1500, f2400, f5800, activated_freq, action, action_status, error_message, raw_payload) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18) RETURNING id',
+            values: [id, name, ip, port, geolocationFinalize, location, last_on, status, f900, f1200, f1500, f2400, f5800, resultActivatedFreq, action, actionStatus, errorMessage, resultRawPayload],
         };
 
         const resultInsert = await this._pool.query(query);
