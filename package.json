@@ -9,7 +9,7 @@
     "migrate": "node-pg-migrate",
     "lint": "eslint ./src --fix"
   },
-  "author": "",
+  "author": "riskikukuh",
   "license": "ISC",
   "dependencies": {
     "@hapi/hapi": "^20.2.2",
@@ -22,7 +22,7 @@
     "pg": "^8.7.3"
   },
   "devDependencies": {
-    "eslint": "^8.22.0",
+    "eslint": "^8.28.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.26.0"
   }

@@ -1,15 +1,15 @@
 const routes = (handler) => [
   {
     method: 'GET',
-    path: `/jammers`,
+    path: '/jammers',
     handler: handler.getJammersHandler,
   }, {
     method: 'GET',
-    path: `/jammers/{jammerId}`,
+    path: '/jammers/{jammerId}',
     handler: handler.getJammerByIdHandler,
   }, {
     method: 'POST',
-    path: `/jammers`,
+    path: '/jammers',
     handler: handler.addJammerHandler,
     options: {
       payload: {
@@ -18,7 +18,7 @@ const routes = (handler) => [
     },
   }, {
     method: 'PUT',
-    path: `/jammers/freq/{jammerId}`,
+    path: '/jammers/freq/{jammerId}',
     handler: handler.editFreqJammerHandler,
     options: {
       payload: {
@@ -27,7 +27,7 @@ const routes = (handler) => [
     },
   }, {
     method: 'PUT',
-    path: `/jammers/{jammerId}`,
+    path: '/jammers/{jammerId}',
     handler: handler.editJammerHandler,
     options: {
       payload: {
@@ -36,17 +36,17 @@ const routes = (handler) => [
     },
   }, {
     method: 'DELETE',
-    path: `/jammers/{jammerId}`,
+    path: '/jammers/{jammerId}',
     handler: handler.deleteJammerHandler,
   }, {
     method: 'GET',
-    path: `/jammers/switch/{jammerId}/{isOn}`,
+    path: '/jammers/switch/{jammerId}/{isOn}',
     handler: handler.toggleJammerHandler,
   }, {
     method: 'POST',
-    path: `/jammers/temp/{jammerId}`,
+    path: '/jammers/temp/{jammerId}',
     handler: handler.addTemperature,
-  }
+  },
 ];
 
 module.exports = routes;

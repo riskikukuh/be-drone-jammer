@@ -15,7 +15,15 @@ exports.up = pgm => {
         },
         temperature:  {
             type: 'FLOAT',
-            notNull: true,
+            notNull: false,
+        },
+        electric_current: {
+            type: 'FLOAT',
+            notNull: false,
+        },
+        voltage: {
+            type: 'FLOAT',
+            notNull: false,
         },
         created_at: {
             type: 'BIGINT',

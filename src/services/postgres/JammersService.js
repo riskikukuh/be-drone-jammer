@@ -13,23 +13,23 @@ class JammersService {
   async getJammers(freqs) {
     if (freqs) {
       let optionFreqs = '';
-      for (const x in Object.keys(freqs)) {
+      Object.keys(freqs).forEach((x) => {
         optionFreqs += `f${freqs[x]} = true ${x == freqs.length - 1 ? '' : 'OR'} `;
-      }
-      const query = `SELECT id, name, ip, port, geolocation, location, activated_freq, f900, f1200, f1500, f2400, f5800, last_on, temperature, status, created_at, updated_at FROM jammers ${optionFreqs != '' ? `WHERE ${optionFreqs}` : ''} ORDER BY created_at`
+      });
+      const query = `SELECT id, name, ip, port, geolocation, location, activated_freq, f900, f1200, f1500, f2400, f5800, last_on, status, created_at, updated_at FROM jammers ${optionFreqs != '' ? `WHERE ${optionFreqs}` : ''} ORDER BY created_at`;
 
       const { rows } = await this._pool.query(query);
       return rows;
-    }    
+    }
 
-    const query = 'SELECT id, name, ip, port, geolocation, location, last_on, temperature, activated_freq, f900, f1200, f1500, f2400, f5800, status, created_at, updated_at FROM jammers ORDER BY created_at';
+    const query = 'SELECT id, name, ip, port, geolocation, location, last_on, activated_freq, f900, f1200, f1500, f2400, f5800, status, created_at, updated_at FROM jammers ORDER BY created_at';
     const { rows } = await this._pool.query(query);
     return rows;
   }
 
   async getJammerById(jammerId) {
     const query = {
-      text: 'SELECT id, name, ip, port, geolocation, location, activated_freq, f900, f1200, f1500, f2400, f5800, last_on, temperature, status, created_at, updated_at FROM jammers WHERE id = $1',
+      text: 'SELECT id, name, ip, port, geolocation, location, activated_freq, f900, f1200, f1500, f2400, f5800, last_on, status, created_at, updated_at FROM jammers WHERE id = $1',
       values: [jammerId],
     };
 
@@ -44,7 +44,7 @@ class JammersService {
 
   async getJammerByName(name) {
     const query = {
-      text: 'SELECT id, name, ip, port, geolocation, location, last_on, temperature, status, created_at, updated_at FROM jammers WHERE name = $1',
+      text: 'SELECT id, name, ip, port, geolocation, location, last_on, status, created_at, updated_at FROM jammers WHERE name = $1',
       values: [name],
     };
 
@@ -60,9 +60,13 @@ class JammersService {
   async addJammer(data) {
     const id = `SCM${Util.generateId()}`;
     const lastOn = null;
-    const status = "MATI";
-    const { name, ip, port, lat, long, location, active_freq } = data;
-    const { f900 = false, f1200 = false, f1500 = false, f2400 = false, f5800 = false } = {}
+    const status = 'MATI';
+    const {
+      name, ip, port, lat, long, location, active_freq,
+    } = data;
+    const {
+      f900 = false, f1200 = false, f1500 = false, f2400 = false, f5800 = false,
+    } = {};
     const geolocation = `(${lat},${long})`;
 
     const query = {
@@ -82,24 +86,22 @@ class JammersService {
   async updateJammer(jammerId, data) {
     const oldData = await this.getJammerById(jammerId);
 
-    const { name, ip, port, lat, long, location, active_freq } = data;
+    const {
+      name, ip, port, lat, long, location, active_freq,
+    } = data;
     const geolocation = `(${lat},${long})`;
 
     const updateStatusConfigFreq = {};
-    for ( const freq of [900, 1200, 1500, 2400, 5800]) {
-      const index = active_freq.findIndex((f) => {
-        return f === freq;
-      });
-      if ( index < 0) {
+    for (const freq of [900, 1200, 1500, 2400, 5800]) {
+      const index = active_freq.findIndex((f) => f === freq);
+      if (index < 0) {
         updateStatusConfigFreq[`f${freq}`] = false;
       } else {
         updateStatusConfigFreq[`f${freq}`] = oldData[`f${freq}`];
       }
     }
 
-    const valueStatusConfigFreq = Object.keys(updateStatusConfigFreq).map((freq) => {
-      return updateStatusConfigFreq[freq];
-    });
+    const valueStatusConfigFreq = Object.keys(updateStatusConfigFreq).map((freq) => updateStatusConfigFreq[freq]);
 
     const query = {
       text: 'UPDATE jammers SET name = $1, ip = $2, port = $3, geolocation = $4, location = $5, activated_freq = $6, f900 = $7, f1200 = $8, f1500 = $9, f2400 = $10, f5800 = $11 WHERE id = $12',
@@ -144,11 +146,11 @@ class JammersService {
     await this._pool.query(query);
   }
 
-  async switchJammerById(jammerId, isOn) {   
-    let status = "MATI"
+  async switchJammerById(jammerId, isOn) {
+    let status = 'MATI';
     let query;
     if (isOn) {
-      status = "HIDUP";
+      status = 'HIDUP';
       query = {
         text: 'UPDATE jammers SET last_on = $1, status = $2, updated_at = $3 WHERE id = $4',
         values: [+new Date(), status, +new Date(), jammerId],
@@ -211,7 +213,6 @@ class JammersService {
       throw new InvariantError('IP dan PORT telah digunakan');
     }
   }
-
 }
 
 module.exports = JammersService;
