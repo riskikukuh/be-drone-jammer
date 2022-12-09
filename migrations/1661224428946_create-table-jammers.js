@@ -33,7 +33,7 @@ exports.up = pgm => {
             notNull: false,
         },
         status: {
-            type: 'VARCHAR(10)',
+            type: 'VARCHAR(20)',
             notNull: true,
         },
         created_at: {

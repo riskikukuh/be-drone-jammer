@@ -8,17 +8,17 @@ const jammers = require('./api/jammers');
 const JammersService = require('./services/postgres/JammersService');
 const jammersValidator = require('./validator/jammers');
 
-// Temperature
-const TemperaturesService = require('./services/postgres/TemperaturesService');
-
 // Exceptions
 const ClientError = require('./api/exceptions/ClientError');
 const LogService = require('./services/postgres/LogService');
 const { Util } = require('./utils/util');
 
+// Statistics
+const StatisticsService = require('./services/postgres/StatisticsService');
+
 const init = async () => {
   const jammersService = new JammersService();
-  const temperaturesService = new TemperaturesService();
+  const statisticsService = new StatisticsService();
   const logService = new LogService();
 
   const server = Hapi.server({
@@ -40,8 +40,8 @@ const init = async () => {
       options: {
         jammersService,
         jammersValidator,
+        statisticsService,
         logService,
-        temperaturesService,
       },
     },
   ]);

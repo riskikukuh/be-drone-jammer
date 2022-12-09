@@ -5,6 +5,7 @@ const {
   JammerFrequenciesParamsSchema,
   JammerFullPayloadSchema,
   JammerTemperatureSchema,
+  JammerResetSchema,
 } = require('./schema');
 
 const JammersValidator = {
@@ -38,6 +39,12 @@ const JammersValidator = {
       throw new InvariantError(validationResult.error.message);
     }
   },
+  validateJammerResetPayload: (payload) => {
+    const validationResult = JammerResetSchema.validate(payload);
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message);
+    }
+  }
 };
 
 module.exports = JammersValidator;

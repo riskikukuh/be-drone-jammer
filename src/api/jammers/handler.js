@@ -3,11 +3,11 @@ const InvariantError = require('../exceptions/InvariantError');
 const { Util, handleError } = require('../../utils/util');
 
 class JammersHandler {
-  constructor(service, jammersValidator, logService, temperatureService) {
+  constructor(service, jammersValidator, statsService, logService) {
     this._jammersService = service;
     this._jammersValidator = jammersValidator;
+    this._statsService = statsService;
     this._logService = logService;
-    this._temperatureService = temperatureService;
     this._axios = axios.create({
       // timeout: 30000, // Production
       timeout: 1000, // Development
@@ -20,7 +20,7 @@ class JammersHandler {
     this.toggleJammerHandler = this.toggleJammerHandler.bind(this);
     this.editJammerHandler = this.editJammerHandler.bind(this);
     this.deleteJammerHandler = this.deleteJammerHandler.bind(this);
-    this.addTemperature = this.addTemperature.bind(this);
+    this.resetJammerHandler = this.resetJammerHandler.bind(this);
   }
 
   async getJammersHandler(request, h) {
@@ -29,9 +29,9 @@ class JammersHandler {
 
     await this._jammersValidator.validateJammerFrequenciesParams({ freqs });
 
-    const jammers = (await this._jammersService.getJammers(freqs)).map((jammer) => {
+    const jammers = await Promise.all((await this._jammersService.getJammers(freqs)).map(async (jammer) => {
       const config = {
-        activated: jammer.activated_freq.split(',').map((f) => parseFloat(f)),
+        activated: jammer.activated_freq != '' ? jammer.activated_freq.split(',').map((f) => parseFloat(f)) : [],
         f900: jammer.f900,
         f1200: jammer.f1200,
         f1500: jammer.f1500,
@@ -46,8 +46,10 @@ class JammersHandler {
       delete jammer.f2400;
       delete jammer.f5800;
 
-      return { ...jammer, config };
-    });
+      const lastStatistic = await this._statsService.getLatestStatisticByJammerId(jammer.id);
+
+      return { ...jammer, config, statistic: lastStatistic };
+    }));
 
     return h.response({
       status: 'success',
@@ -79,6 +81,10 @@ class JammersHandler {
       delete jammer.f5800;
 
       jammer.config = config;
+
+      const lastStatistic = await this._statsService.getLatestStatisticByJammerId(jammer.id);
+      
+      jammer.statistic = lastStatistic;
 
       return h.response({
         status: 'success',
@@ -158,31 +164,19 @@ class JammersHandler {
     }, Util.ACTION.DELETE_JAMMER, 'Jammer');
   }
 
-  async addTemperature(request, h) {
-    return await handleError(async () => {
-      const { jammerId } = request.params;
-      await this._jammersValidator.validateJammerTemperaturePayload(request.payload);
-      const { temperature } = request.payload;
-      await this._jammersService.verifyAnyJammer(jammerId);
-
-      await this._temperatureService.addTemperature({ jammerId, temperature });
-
-      return h.response({
-        status: 'success',
-      }).code(201);
-    }, Util.ACTION.ADD_TEMPERATURE_JAMMER, 'Jammer');
-  }
-
   // TODO: Reset Jammer
   async resetJammerHandler(request, h) {
-    const statuses = ['MATI', 'HIDUP', 'ERROR'];
-    const { status } = request.payload;
-    if (!statuses.includes(status)) {
-      status = 'MATI';
-    }
+    await this._jammersValidator.validateJammerResetPayload(request.payload);
+    const { jammerId } = request.payload;
+    await this._jammersService.verifyAnyJammer(jammerId);
+
+    await this._jammersService.resetJammer(jammerId);
+  
+    return h.response({
+      status: 200,
+    });
   }
 
-  // TODO: add log on toggle jammer handler
   async toggleJammerHandler(request, h) {
     let action = Util.ACTION.SWITCH_JAMMER_ON;
     let castedIsOn = 'on';
@@ -203,12 +197,18 @@ class JammersHandler {
 
     return await handleError(async () => {
       const jammer = await this._jammersService.getJammerById(jammerIdFinalized);
-      const { ip, port } = jammer;
+      const { ip, port, status } = jammer;
+      if (status == 'UNAVAILABLE') {
+        throw new InvariantError('Jammer berstatus unavailable, lakukan reset atau service jammer segera!');
+      }
       let errorMessage;
       const resultSwitch = await this.switchJammerLan(ip, port, castedIsOn).catch(err => {
           console.error("====> ERROR");
           console.error(err);
           errorMessage = err;
+          if (err.message) {
+            errorMessage = err.message;
+          }
       });
 
       /*
@@ -241,7 +241,7 @@ class JammersHandler {
       */
       const errorResponse = {
         status: 'error',
-        message: errorMessage.message,
+        message: errorMessage,
       };
       await this._logService.addJammerLog({ ...jammer, raw_payload: request.params }, { action, actionStatus: Util.ACTION_STATUS.ERROR, errorMessage: errorResponse });
 
@@ -258,7 +258,7 @@ class JammersHandler {
     const authHeader = `Basic ${encryptedCredentials}`;
     return new Promise(async (resolve, reject) => {
       try {
-        await this._axios.get(`http://${ip}:${port}/api/${isOn}`, {
+        await this._axios.get(`http://${ip}:${port}/switch/${isOn}`, {
           headers: {
             authorization: authHeader,
           },

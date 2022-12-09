@@ -3,7 +3,7 @@
 exports.shorthands = undefined;
 
 exports.up = pgm => {
-    pgm.createTable('jammer_temperatures', {
+    pgm.createTable('statistic_logs', {
         id: {
             type: 'id',
             notNull: true,
@@ -25,6 +25,14 @@ exports.up = pgm => {
             type: 'FLOAT',
             notNull: false,
         },
+        raw_statistic: {
+            type: 'TEXT',
+            notNull: false,
+        },
+        status:  {
+            type: 'VARCHAR(10)',
+            notNull: true,
+        },
         created_at: {
             type: 'BIGINT',
             notNull: true,
@@ -34,5 +42,5 @@ exports.up = pgm => {
 };
 
 exports.down = pgm => {
-    pgm.dropTable('jammer_temperatures');
+    pgm.dropTable('statistic_logs');
 };

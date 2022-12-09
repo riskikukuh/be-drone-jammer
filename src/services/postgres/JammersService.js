@@ -165,6 +165,23 @@ class JammersService {
     await this._pool.query(query);
   }
 
+  async resetJammer(jammerId) {
+    const status = 'MATI';
+    const query = {
+      text: 'UPDATE jammers SET status = $1, last_on = $2, f900 = $3, f1200 = $4, f1500 = $5, f2400 = $6, f5800 = $7, activated_freq = $8, error_count = $9 WHERE id = $10',
+      values: [status, null, 0, 0, 0, 0, 0, '', 0, jammerId],
+    };
+
+    await this._pool.query(query);
+
+    const queryInsertResetTemperature = {
+      text: 'INSERT INTO jammer_statistics (jammer_id, temperature, electric_current, voltage) VALUES ($1, $2, $3, $4) RETURNING id',
+      values: [jammerId, null, null, null],
+    };
+
+    await this._pool.query(queryInsertResetTemperature);
+  }
+
   async verifyAnyJammer(id) {
     const query = {
       text: 'SELECT id FROM jammers WHERE id = $1',

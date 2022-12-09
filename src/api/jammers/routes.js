@@ -44,9 +44,9 @@ const routes = (handler) => [
     handler: handler.toggleJammerHandler,
   }, {
     method: 'POST',
-    path: '/jammers/temp/{jammerId}',
-    handler: handler.addTemperature,
-  },
+    path: '/jammers/reset',
+    handler: handler.resetJammerHandler,
+  }
 ];
 
 module.exports = routes;

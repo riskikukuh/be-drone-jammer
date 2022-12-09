@@ -34,10 +34,15 @@ const JammerTemperatureSchema = Joi.object({
   temperature: Joi.number().required(),
 });
 
+const JammerResetSchema = Joi.object({
+  jammerId: Joi.string().empty().required()
+});
+
 module.exports = {
   JammerPayloadSchema,
   JammerFrequenciesSchema,
   JammerFrequenciesParamsSchema,
   JammerFullPayloadSchema,
   JammerTemperatureSchema,
+  JammerResetSchema,
 };

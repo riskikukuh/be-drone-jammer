@@ -5,9 +5,9 @@ module.exports = {
   name: 'jammers',
   version: '0.0.1',
   register: async (server, {
-    jammersService, jammersValidator, logService, temperaturesService,
+    jammersService, jammersValidator, statisticsService, logService,
   }) => {
-    const jammersHandler = new JammersHandler(jammersService, jammersValidator, logService, temperaturesService);
+    const jammersHandler = new JammersHandler(jammersService, jammersValidator, statisticsService, logService);
     server.route(routes(jammersHandler));
   },
 };
