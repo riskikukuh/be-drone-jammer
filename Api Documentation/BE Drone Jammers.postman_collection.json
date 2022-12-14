@@ -1,0 +1,467 @@
+{
+	"info": {
+		"_postman_id": "83b17204-9b1a-4773-9d0c-411a54473ff1",
+		"name": "BE Drone Jammers",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Jammers",
+			"item": [
+				{
+					"name": "Get Jammers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{host-be-drone}}:{{port-be-drone}}/api/jammers",
+							"protocol": "http",
+							"host": [
+								"{{host-be-drone}}"
+							],
+							"port": "{{port-be-drone}}",
+							"path": [
+								"api",
+								"jammers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Jammer By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{host-be-drone}}:{{port-be-drone}}/api/jammers/{{valid-drone-jammer-id}}",
+							"protocol": "http",
+							"host": [
+								"{{host-be-drone}}"
+							],
+							"port": "{{port-be-drone}}",
+							"path": [
+								"api",
+								"jammers",
+								"{{valid-drone-jammer-id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Jammers with activated freq",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{host-be-drone}}:{{port-be-drone}}/api/jammers?freqs=1200",
+							"protocol": "http",
+							"host": [
+								"{{host-be-drone}}"
+							],
+							"port": "{{port-be-drone}}",
+							"path": [
+								"api",
+								"jammers"
+							],
+							"query": [
+								{
+									"key": "freqs",
+									"value": "1200"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Jammer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.status == 201) {",
+									"    var jsonData = JSON.parse(responseBody);",
+									"    postman.setEnvironmentVariable('valid-drone-jammer-id', jsonData.data.id)",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"function randomString(minValue, maxValue, dataSet = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ') {",
+									"    if (!minValue) {",
+									"        minValue = 20;",
+									"        maxValue = 20;",
+									"    }",
+									"",
+									"    if (!maxValue) {",
+									"        maxValue = minValue;",
+									"    }",
+									"",
+									"    let length = _.random(minValue, maxValue),",
+									"        randomString = \"\";",
+									"",
+									"    for (let i = 0; i < length; i++)",
+									"        randomString += dataSet.charAt(Math.floor(Math.random() * dataSet.length));",
+									"    return randomString;",
+									"}",
+									"",
+									"pm.variables.set('valid-drone-name', randomString());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{valid-drone-name}}\",\n    \"ip\": \"{{valid-drone-ip}}\",\n    \"port\": {{valid-drone-port}},\n    \"lat\": {{valid-drone-lat}},\n    \"long\": {{valid-drone-long}},\n    \"location\": \"{{valid-drone-location}}\",\n    \"active_freq\": [900, 1200] // Available Frequencies: [900, 1200, 1500, 2400, 5800]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host-be-drone}}:{{port-be-drone}}/api/jammers",
+							"protocol": "http",
+							"host": [
+								"{{host-be-drone}}"
+							],
+							"port": "{{port-be-drone}}",
+							"path": [
+								"api",
+								"jammers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Jammer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.status == 201) {",
+									"    var jsonData = JSON.parse(responseBody);",
+									"    postman.setEnvironmentVariable('valid-drone-jammer-id', jsonData.data.id)",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"function randomString(minValue, maxValue, dataSet = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ') {",
+									"    if (!minValue) {",
+									"        minValue = 20;",
+									"        maxValue = 20;",
+									"    }",
+									"",
+									"    if (!maxValue) {",
+									"        maxValue = minValue;",
+									"    }",
+									"",
+									"    let length = _.random(minValue, maxValue),",
+									"        randomString = \"\";",
+									"",
+									"    for (let i = 0; i < length; i++)",
+									"        randomString += dataSet.charAt(Math.floor(Math.random() * dataSet.length));",
+									"    return randomString;",
+									"}",
+									"",
+									"pm.variables.set('valid-drone-name', randomString());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{valid-drone-name}}\",\n    \"ip\": \"{{valid-drone-ip}}\",\n    \"port\": {{valid-drone-port}},\n    \"lat\": {{valid-drone-lat}},\n    \"long\": {{valid-drone-long}},\n    \"location\": \"{{valid-drone-location}}\",\n    \"active_freq\": [5800] // Available Frequencies: [900, 1200, 1500, 2400, 5800]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host-be-drone}}:{{port-be-drone}}/api/jammers/{{valid-drone-jammer-id}}",
+							"protocol": "http",
+							"host": [
+								"{{host-be-drone}}"
+							],
+							"port": "{{port-be-drone}}",
+							"path": [
+								"api",
+								"jammers",
+								"{{valid-drone-jammer-id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Jammer Freq",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.status == 201) {",
+									"    var jsonData = JSON.parse(responseBody);",
+									"    postman.setEnvironmentVariable('valid-drone-jammer-id', jsonData.data.id)",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"function randomString(minValue, maxValue, dataSet = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ') {",
+									"    if (!minValue) {",
+									"        minValue = 20;",
+									"        maxValue = 20;",
+									"    }",
+									"",
+									"    if (!maxValue) {",
+									"        maxValue = minValue;",
+									"    }",
+									"",
+									"    let length = _.random(minValue, maxValue),",
+									"        randomString = \"\";",
+									"",
+									"    for (let i = 0; i < length; i++)",
+									"        randomString += dataSet.charAt(Math.floor(Math.random() * dataSet.length));",
+									"    return randomString;",
+									"}",
+									"",
+									"pm.variables.set('valid-drone-name', randomString());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"frequency\": 1200, // Available Frequencies: [900, 1200, 1500, 2400, 5800]\n    \"status\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host-be-drone}}:{{port-be-drone}}/api/jammers/freq/{{valid-drone-jammer-id}}",
+							"protocol": "http",
+							"host": [
+								"{{host-be-drone}}"
+							],
+							"port": "{{port-be-drone}}",
+							"path": [
+								"api",
+								"jammers",
+								"freq",
+								"{{valid-drone-jammer-id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Jammer",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://{{host-be-drone}}:{{port-be-drone}}/api/jammers/{{valid-drone-jammer-id}}",
+							"protocol": "http",
+							"host": [
+								"{{host-be-drone}}"
+							],
+							"port": "{{port-be-drone}}",
+							"path": [
+								"api",
+								"jammers",
+								"{{valid-drone-jammer-id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Switch Jammer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.status == 200) {",
+									"    let isOn = 'on';",
+									"    if (postman.getEnvironmentVariable('isOn') == 'on') {",
+									"        isOn = 'off';",
+									"    }",
+									"    postman.setEnvironmentVariable('isOn', isOn);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{host-be-drone}}:{{port-be-drone}}/api/jammers/switch/{{valid-drone-jammer-id}}/{{isOn}}",
+							"protocol": "http",
+							"host": [
+								"{{host-be-drone}}"
+							],
+							"port": "{{port-be-drone}}",
+							"path": [
+								"api",
+								"jammers",
+								"switch",
+								"{{valid-drone-jammer-id}}",
+								"{{isOn}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Temperature",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"temperature\": 34.4\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host-be-drone}}:{{port-be-drone}}/api/jammers/temp/{{valid-drone-jammer-id}}",
+							"protocol": "http",
+							"host": [
+								"{{host-be-drone}}"
+							],
+							"port": "{{port-be-drone}}",
+							"path": [
+								"api",
+								"jammers",
+								"temp",
+								"{{valid-drone-jammer-id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Jammer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jammerId\": \"{{valid-drone-jammer-id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host-be-drone}}:{{port-be-drone}}/api/jammers/reset",
+							"protocol": "http",
+							"host": [
+								"{{host-be-drone}}"
+							],
+							"port": "{{port-be-drone}}",
+							"path": [
+								"api",
+								"jammers",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Jammer Action",
+			"item": [
+				{
+					"name": "Switch Jammer On",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{host-be-drone}}:{{port-be-drone}}/api/jammers/switch/{{valid-drone-jammer-id}}/on",
+							"protocol": "http",
+							"host": [
+								"{{host-be-drone}}"
+							],
+							"port": "{{port-be-drone}}",
+							"path": [
+								"api",
+								"jammers",
+								"switch",
+								"{{valid-drone-jammer-id}}",
+								"on"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Switch Jammer Off",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{host-be-drone}}:{{port-be-drone}}/api/jammers/switch/{{valid-drone-jammer-id}}/off",
+							"protocol": "http",
+							"host": [
+								"{{host-be-drone}}"
+							],
+							"port": "{{port-be-drone}}",
+							"path": [
+								"api",
+								"jammers",
+								"switch",
+								"{{valid-drone-jammer-id}}",
+								"off"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
